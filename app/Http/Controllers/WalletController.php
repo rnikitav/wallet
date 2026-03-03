@@ -5,27 +5,23 @@ namespace App\Http\Controllers;
 use App\Exceptions\WalletException;
 use App\Http\Requests\DepositRequest;
 use App\Http\Requests\WithdrawRequest;
+use App\Http\Resources\WalletResource;
+use App\Http\Resources\WalletTransactionResource;
 use App\Models\Wallet;
 use App\Services\WalletService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class WalletController extends Controller
 {
     public function __construct(private readonly WalletService $walletService) {}
 
-    public function balance(Request $request): JsonResponse
+    public function balance(Request $request): AnonymousResourceCollection
     {
         $wallets = Wallet::where('user_id', $request->user()->id)->get();
 
-        return response()->json([
-            'wallets' => $wallets->map(fn($w) => [
-                'currency'          => $w->currency,
-                'balance'           => $w->balance,
-                'frozen_balance'    => $w->frozen_balance,
-                'available_balance' => $w->available_balance,
-            ]),
-        ]);
+        return WalletResource::collection($wallets);
     }
 
     public function deposit(DepositRequest $request): JsonResponse
@@ -41,11 +37,10 @@ class WalletController extends Controller
                 toAddress:   $request->input('to_address'),
             );
 
-            return response()->json([
-                'message'        => 'Deposit pending confirmation.',
-                'transaction_id' => $transaction->id,
-                'status'         => $transaction->status,
-            ], 201);
+            return (new WalletTransactionResource($transaction))
+                ->additional(['message' => 'Deposit pending confirmation.'])
+                ->response()
+                ->setStatusCode(201);
 
         } catch (WalletException $e) {
             return response()->json(['error' => $e->getMessage()], $e->getCode());
@@ -63,12 +58,10 @@ class WalletController extends Controller
                 toAddress: $request->input('to_address'),
             );
 
-            return response()->json([
-                'message'        => 'Withdrawal pending processing.',
-                'transaction_id' => $transaction->id,
-                'status'         => $transaction->status,
-                'fee'            => $transaction->fee,
-            ], 201);
+            return (new WalletTransactionResource($transaction))
+                ->additional(['message' => 'Withdrawal pending processing.'])
+                ->response()
+                ->setStatusCode(201);
 
         } catch (WalletException $e) {
             return response()->json(['error' => $e->getMessage()], $e->getCode());

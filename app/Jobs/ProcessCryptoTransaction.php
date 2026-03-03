@@ -29,7 +29,7 @@ class ProcessCryptoTransaction implements ShouldQueue
         }
 
         // в реальности тут запрос к блокчейн-ноде (Infura, TronGrid и т.д.)
-        $confirmations = $this->fetchConfirmations($transaction->tx_hash, $transaction->network);
+        $confirmations = $this->fetchConfirmations($transaction->tx_hash, $transaction->network, $transaction->confirmations);
 
         $transaction->update(['confirmations' => $confirmations]);
 
@@ -43,9 +43,10 @@ class ProcessCryptoTransaction implements ShouldQueue
         }
     }
 
-    private function fetchConfirmations(?string $txHash, ?string $network): int
+    private function fetchConfirmations(?string $_txHash, ?string $_network, int $current): int
     {
-        // заглушка — заменить на реальный HTTP-запрос к ноде
-        return rand(0, 20);
+        // заглушка — заменить на реальный HTTP-запрос к ноде (Infura, TronGrid и т.д.)
+        // симулирует постепенный рост подтверждений: +3..7 за каждый блок
+        return $current + rand(3, 7);
     }
 }

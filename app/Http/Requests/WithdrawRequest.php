@@ -11,7 +11,7 @@ class WithdrawRequest extends FormRequest
         return [
             'amount'     => ['required', 'numeric', 'gt:0'],
             'currency'   => ['required', 'string', 'in:USDT,BTC,ETH'],
-            'network'    => ['required', 'string', 'in:ERC20,TRC20,BEP20'],
+            'network'    => ['required', 'string', 'in:ERC20,TRC20,BEP20,BTC'],
             'to_address' => ['required', 'string'],
         ];
     }

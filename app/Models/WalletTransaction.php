@@ -4,7 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int         $id
+ * @property int         $wallet_id
+ * @property string      $type                  deposit|withdrawal|fee
+ * @property string      $status                pending|confirmed|failed|cancelled
+ * @property string      $amount
+ * @property string      $fee
+ * @property string|null $tx_hash
+ * @property string|null $network
+ * @property string|null $from_address
+ * @property string|null $to_address
+ * @property int         $confirmations
+ * @property int         $required_confirmations
+ * @property array|null  $meta
+ * @property string      $idempotency_key
+ * @property Carbon      $created_at
+ * @property Carbon      $updated_at
+ *
+ * @property-read Wallet $wallet
+ */
 class WalletTransaction extends Model
 {
     protected $fillable = [
